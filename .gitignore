@@ -60,3 +60,4 @@ local-data/
 .env
 .env.*
 !.env.example
+cloudflared.exe
