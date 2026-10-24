@@ -1,0 +1,193 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&family=Fraunces:opsz,wght@9..144,400..700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --font-sans: var(--app-font-sans);
+  --font-serif: var(--app-font-serif);
+  --font-mono: var(--app-font-mono);
+}
+
+:root {
+  --background: 44 28% 97%;
+  --foreground: 160 30% 12%;
+  --border: 40 18% 88%;
+  --input: 40 18% 88%;
+  --card: 0 0% 100%;
+  --card-foreground: 160 30% 12%;
+  --primary: 162 45% 24%;
+  --primary-foreground: 45 40% 98%;
+  --secondary: 40 22% 92%;
+  --secondary-foreground: 160 25% 18%;
+  --muted: 42 20% 93%;
+  --muted-foreground: 160 12% 42%;
+  --accent: 24 88% 54%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 74% 50%;
+  --destructive-foreground: 0 0% 100%;
+  --ring: 162 45% 24%;
+  --radius: 1rem;
+  --app-font-sans: 'Plus Jakarta Sans', 'DM Sans', sans-serif;
+  --app-font-serif: 'Fraunces', Georgia, serif;
+  --app-font-mono: 'DM Mono', monospace;
+  --shadow-soft: 0 16px 40px -10px rgba(22, 45, 34, 0.08);
+  --shadow-glow: 0 0 25px rgba(20, 184, 166, 0.15);
+}
+
+.dark {
+  --background: 220 25% 8%;
+  --foreground: 210 25% 96%;
+  --border: 217 22% 17%;
+  --input: 217 22% 17%;
+  --card: 220 24% 11%;
+  --card-foreground: 210 25% 96%;
+  --primary: 160 70% 44%;
+  --primary-foreground: 220 30% 8%;
+  --secondary: 218 20% 16%;
+  --secondary-foreground: 210 20% 90%;
+  --muted: 218 20% 14%;
+  --muted-foreground: 215 15% 62%;
+  --accent: 32 95% 58%;
+  --accent-foreground: 220 30% 8%;
+  --destructive: 0 72% 56%;
+  --destructive-foreground: 0 0% 100%;
+  --ring: 160 70% 44%;
+  --shadow-soft: 0 20px 45px -12px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 30px rgba(16, 185, 129, 0.18);
+}
+
+@layer base {
+  * { @apply border-border; }
+  body {
+    @apply bg-background text-foreground antialiased selection:bg-emerald-500/20 selection:text-emerald-700 dark:selection:text-emerald-300;
+    margin: 0;
+    font-family: var(--app-font-sans);
+  }
+  button, textarea, input { font: inherit; }
+  button { cursor: pointer; }
+}
+
+/* Modern Glass & Surface Utilities */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(226, 224, 214, 0.85);
+}
+
+.dark .glass-panel {
+  background: rgba(18, 24, 32, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(229, 226, 218, 0.9);
+  box-shadow: 0 10px 30px -10px rgba(35, 52, 43, 0.05);
+}
+
+.dark .glass-card {
+  background: rgba(22, 29, 41, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: 0 14px 35px -10px rgba(0, 0, 0, 0.45);
+}
+
+.mesh-glow-light {
+  background:
+    radial-gradient(at 0% 0%, rgba(20, 184, 166, 0.08) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(245, 158, 11, 0.07) 0px, transparent 45%),
+    radial-gradient(at 50% 100%, rgba(13, 148, 136, 0.06) 0px, transparent 50%);
+}
+
+.dark .mesh-glow-dark {
+  background:
+    radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.12) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(245, 158, 11, 0.09) 0px, transparent 40%),
+    radial-gradient(at 50% 50%, rgba(99, 102, 241, 0.08) 0px, transparent 60%);
+}
+
+/* Animations */
+.fade-up {
+  animation: fadeUp .5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.fade-up-delay {
+  animation: fadeUp .55s 0.08s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.task-row {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.task-row:hover {
+  transform: translateY(-2px);
+}
+
+.step-node {
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.step-node.is-active {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px -6px rgba(249, 115, 22, 0.25);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(140, 150, 145, 0.25);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(140, 150, 145, 0.45);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

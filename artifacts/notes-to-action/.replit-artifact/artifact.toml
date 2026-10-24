@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Notes to Action"
+description = "A full-stack productivity app that turns messy notes into prioritized tasks and a realistic day plan, while recording a replayable diagram of every real processing step and any recovery path."
+version = "1.0.0"
+id = "artifacts/notes-to-action"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 23226
+
+[services.development]
+run = "pnpm --filter @workspace/notes-to-action run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/notes-to-action", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/notes-to-action/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "23226"
+BASE_PATH = "/"

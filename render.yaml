@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: notes-to-action
+    env: node
+    plan: starter
+    region: oregon
+    buildCommand: pnpm install --dangerously-allow-all-builds && pnpm run build
+    startCommand: pnpm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: LOCAL_DB_PATH
+        value: /var/data/notes-to-action-db
+      - key: OPENAI_API_KEY
+        sync: false
+    disk:
+      name: notes-data
+      mountPath: /var/data
+      sizeGB: 1

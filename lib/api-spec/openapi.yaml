@@ -1,0 +1,258 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: API specification
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: runs
+    description: Notes-to-action runs and their replayable execution trace
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+  /runs:
+    get:
+      operationId: listRuns
+      tags: [runs]
+      summary: List runs owned by one browser profile
+      parameters:
+        - name: ownerId
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 20
+            maxLength: 100
+      responses:
+        "200":
+          description: Recent runs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RunSummary"
+    post:
+      operationId: createRun
+      tags: [runs]
+      summary: Start a notes-to-action run
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RunInput"
+      responses:
+        "201":
+          description: Run accepted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Run"
+        "400":
+          description: Invalid notes
+        "429":
+          description: Run limit reached for this connection
+  /runs/{ownerId}/{runId}:
+    get:
+      operationId: getRun
+      tags: [runs]
+      summary: Get a run and its saved events
+      parameters:
+        - name: ownerId
+          in: path
+          required: true
+          schema:
+            type: string
+            minLength: 20
+            maxLength: 100
+        - name: runId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Run details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Run"
+        "404":
+          description: Run not found
+  /runs/{ownerId}/{runId}/events:
+    get:
+      operationId: streamRunEvents
+      tags: [runs]
+      summary: Stream persisted run events as they happen
+      parameters:
+        - name: ownerId
+          in: path
+          required: true
+          schema:
+            type: string
+            minLength: 20
+            maxLength: 100
+        - name: runId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Server-sent event stream; each data value is a RunEvent
+          content:
+            text/event-stream:
+              schema:
+                type: string
+        "404":
+          description: Run not found
+  /runs/{runId}/tasks/{taskId}:
+    patch:
+      operationId: updateRunTask
+      tags: [runs]
+      summary: Update a task completion state
+      parameters:
+        - name: runId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: taskId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TaskUpdate"
+      responses:
+        "200":
+          description: Updated task
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+        "404":
+          description: Task not found
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+    RunInput:
+      type: object
+      properties:
+        ownerId:
+          type: string
+          minLength: 20
+          maxLength: 100
+        notes:
+          type: string
+          minLength: 20
+          maxLength: 12000
+        timezone:
+          type: string
+          minLength: 1
+          maxLength: 80
+      required: [ownerId, notes, timezone]
+    TaskUpdate:
+      type: object
+      properties:
+        ownerId:
+          type: string
+          minLength: 20
+          maxLength: 100
+        completed:
+          type: boolean
+      required: [ownerId, completed]
+    Task:
+      type: object
+      properties:
+        id: { type: string }
+        title: { type: string }
+        category: { type: string }
+        priority: { type: string, enum: [high, medium, low] }
+        reason: { type: string }
+        estimateMinutes: { type: integer }
+        dueLabel: { type: ["string", "null"] }
+        completed: { type: boolean }
+      required: [id, title, category, priority, reason, estimateMinutes, completed]
+    ScheduleBlock:
+      type: object
+      properties:
+        taskId: { type: string }
+        title: { type: string }
+        start: { type: string }
+        end: { type: string }
+        estimateMinutes: { type: integer }
+      required: [taskId, title, start, end, estimateMinutes]
+    RunEvent:
+      type: object
+      properties:
+        sequence: { type: integer }
+        stepId: { type: string }
+        phase: { type: string, enum: [started, completed, failed, recovered] }
+        layer: { type: string, enum: [browser, server, openai, database] }
+        label: { type: string }
+        detail: { type: string }
+        occurredAt: { type: string, format: date-time }
+        durationMs: { type: ["integer", "null"] }
+      required: [sequence, stepId, phase, layer, label, detail, occurredAt]
+    Run:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        title: { type: string }
+        notes: { type: string }
+        status: { type: string, enum: [queued, running, completed, failed] }
+        tasks:
+          type: array
+          items: { $ref: "#/components/schemas/Task" }
+        schedule:
+          type: array
+          items: { $ref: "#/components/schemas/ScheduleBlock" }
+        events:
+          type: array
+          items: { $ref: "#/components/schemas/RunEvent" }
+        fallbackUsed: { type: boolean }
+        createdAt: { type: string, format: date-time }
+        completedAt: { type: ["string", "null"], format: date-time }
+      required: [id, title, notes, status, tasks, schedule, events, fallbackUsed, createdAt]
+    RunSummary:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        title: { type: string }
+        taskCount: { type: integer }
+        status: { type: string, enum: [queued, running, completed, failed] }
+        fallbackUsed: { type: boolean }
+        createdAt: { type: string, format: date-time }
+      required: [id, title, taskCount, status, fallbackUsed, createdAt]
+
